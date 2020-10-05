@@ -23,7 +23,7 @@
         "power-play",
         "streak-saver",
         "glitch"
-    ];
+    ]; // Source: https://quizizz.zendesk.com/hc/en-us/articles/360035742972-How-many-Power-ups-are-there-
 
     // Inject required libraries
     let script;
