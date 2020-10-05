@@ -11,6 +11,10 @@
 (function () {
     "use strict";
 
+    // Constants
+    const ErrorReportingURL = "";
+    const MetricsURL = null;
+
     // Inject required libraries
     let script;
     for (let lib of ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"]) {
