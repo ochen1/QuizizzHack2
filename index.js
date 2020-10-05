@@ -502,7 +502,9 @@
                 alertify.prompt(
                     "Choose Powerup",
                     "Please enter your desired powerup.<br>Here is a handy list: " +
-                        ValidPowerups.join(", "),
+                        "<ul><li>" +
+                        ValidPowerups.join("</li><li>") +
+                        "</li></ul><br>",
                     "2x",
                     function (evt, value) {
                         resolve(value);
@@ -522,7 +524,9 @@
                         alertify.confirm(
                             "Invalid Powerup Name",
                             "That does not appear to be a valid powerup!<br>Valid powerups: " +
-                                ValidPowerups.join(", ") +
+                                "<ul><li>" +
+                                ValidPowerups.join("</li><li>") +
+                                "</li></ul>" +
                                 "<br>Proceed anyway?",
                             () => {
                                 resolve(true);
@@ -652,7 +656,7 @@
             "beforeend",
             `
 <style id="answers-x3Ca8B" type="text/css">
-.correct-answer-x3Ca8B > div > div {
+.correct-answer-x3Ca8B > div > div:nth-of-type(1) {
     border: none !important;
     box-shadow: 0px 0px 10px 10px inset #ededed !important;
 }
