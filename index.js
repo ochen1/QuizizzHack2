@@ -547,11 +547,20 @@
                     if (xhr.status != 200) {
                         // The attempt to add the powerup failed for some reason.
                         // TODO: Automatically report this error.
-                        alertify.notify(
-                            "An unknown error occured.",
-                            "error",
-                            5
-                        );
+                        let ret = JSON.parse(xhr.responseText)
+                        if (ret.error) {
+                            alertify.notify(
+                                ret.error + ' (' + ret.type + ')',
+                                "error",
+                                10
+                            );
+                        } else {
+                            alertify.notify(
+                                "An unknown error occurred.",
+                                "error",
+                                5
+                            );
+                        }
                         return false;
                     }
                     alertify.notify(
