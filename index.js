@@ -14,14 +14,29 @@
     // Constants
     const ErrorReportingURL = "";
     const MetricsURL = null;
+    const ValidPowerups = [];
 
     // Inject required libraries
     let script;
-    for (let lib of ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"]) {
+    for (let lib of [
+        "//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js",
+        "//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"
+    ]) {
         script = document.createElement("script");
         script.src = lib;
-        script.type = "text/javascript";
+        script.type = "application/javascript";
         document.getElementsByTagName("head")[0].appendChild(script);
+    }
+    let stylesheet;
+    for (let lib of [
+        "//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/alertify.min.css",
+        "//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/themes/semantic.min.css"
+    ]) {
+        stylesheet = document.createElement("link");
+        stylesheet.rel = "stylesheet";
+        stylesheet.href = lib;
+        stylesheet.type = "text/css";
+        document.getElementsByTagName("head")[0].appendChild(stylesheet);
     }
 
     function sleep(ms) {
@@ -470,21 +485,43 @@
         }
     }
 
-    function createCreatePowerupButton() {
+    async function createCreatePowerupButton() {
         // Define the function the button should call when it is clicked.
-        window.createPowerup = function () {
-            // TODO: Use custom popup modal functions.
+        window.createPowerup = async function () {
             let { GameType, roomHash, playerId } = GetSetMeta();
-            let chosenPowerup = window.prompt(
-                "Please enter your desired powerup.",
-                "2x"
-            );
-            if (![].includes(chosenPowerup)) {
+            let chosenPowerup = await new Promise((resolve) => {
+                alertify.prompt(
+                    "Choose Powerup",
+                    "Please enter your desired powerup.",
+                    "2x",
+                    function (evt, value) {
+                        resolve(value);
+                    },
+                    function () {
+                        resolve(false);
+                    }
+                );
+            });
+            if (chosenPowerup === false) {
+                return false;
+            }
+            if (!ValidPowerups.includes(chosenPowerup)) {
                 // TODO: insert list of powerups
                 if (
-                    !window.confirm(
-                        "That is not a valid powerup.\nContinue anyway?"
-                    )
+                    !(await new Promise((resolve) => {
+                        alertify.confirm(
+                            "Invalid Powerup Name",
+                            "That does not appear to be a valid powerup!<br>Valid powerups: " +
+                                ValidPowerups.join(", ") +
+                                "<br>Proceed anyway?",
+                            () => {
+                                resolve(true);
+                            },
+                            () => {
+                                resolve(false);
+                            }
+                        );
+                    }))
                 ) {
                     return false;
                 }
@@ -510,12 +547,18 @@
                     if (xhr.status != 200) {
                         // The attempt to add the powerup failed for some reason.
                         // TODO: Automatically report this error.
-                        window.alert("Sorry, an error occurred.");
+                        alertify.notify(
+                            "An unknown error occured.",
+                            "error",
+                            5
+                        );
                         return false;
                     }
-                    if (window.confirm("Done! Refresh to see powerups?")) {
-                        window.location.reload();
-                    }
+                    alertify.notify(
+                        "Success! Reload to see powerup.",
+                        "success",
+                        3
+                    );
                 }
             };
         };
