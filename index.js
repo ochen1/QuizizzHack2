@@ -1,36 +1,48 @@
-let script = document.createElement("script");
-script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
-script.type = "text/javascript";
-document.getElementsByTagName("head")[0].appendChild(script);
+// ==UserScript==
+// @name         Quizizz Answers Highlighter and Powerup Generator
+// @namespace    https://github.com/ochen1/QuizizzHack2
+// @version      0.1
+// @description  Adds a button 
+// @author       You
+// @match        *://quizizz.com/join/*
+// @grant        none
+// ==/UserScript==
 
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
+(function () {
+    "use strict";
+    let script = document.createElement("script");
+    script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
+    script.type = "text/javascript";
+    document.getElementsByTagName("head")[0].appendChild(script);
 
-function isQuizizzQuiz() {
-    return (
-        window.location.pathname.split("/").slice(1, 3).join("-") ==
-            "join-game" &&
-        new URLSearchParams(window.location.search).get("gameType") &&
-        JSON.parse(localStorage.getItem("previousContext")).game !== null
-    );
-}
+    function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
 
-function waitForQuizizzQuiz(interval) {
-    return new Promise(async function (resolve) {
-        while (true) {
-            if (isQuizizzQuiz()) {
-                console.log("Quizizz quiz resolved.");
-                resolve();
-                return true;
+    function isQuizizzQuiz() {
+        return (
+            window.location.pathname.split("/").slice(1, 3).join("-") ==
+                "join-game" &&
+            new URLSearchParams(window.location.search).get("gameType") &&
+            JSON.parse(localStorage.getItem("previousContext")).game !== null
+        );
+    }
+
+    function waitForQuizizzQuiz(interval) {
+        return new Promise(async function (resolve) {
+            while (true) {
+                if (isQuizizzQuiz()) {
+                    console.log("Quizizz quiz resolved.");
+                    resolve();
+                    return true;
+                }
+                await sleep(1000);
+                // console.log("Quizizz quiz still pending...");
             }
-            await sleep(1000);
-            // console.log("Quizizz quiz still pending...");
-        }
-    });
-}
+        });
+    }
 
-/*
+    /*
 if (
     !isQuizizzQuiz()
 ) {
@@ -38,292 +50,389 @@ if (
 }
 */
 
-if (
-    !isQuizizzQuiz()
-) {
-    console.warn("Warning: Not a Quizizz quiz. Waiting for Quizizz quiz...");
-}
-
-class Encoding {
-    static encodeRaw(t, e, o = "quizizz.com") {
-        let s = 0;
-        s = e ? o.charCodeAt(0) : o.charCodeAt(0) + o.charCodeAt(o.length - 1);
-        let r = [];
-        for (let o = 0; o < t.length; o++) {
-            let n = t[o].charCodeAt(0),
-                c = e ? this.safeAdd(n, s) : this.addOffset(n, s, o, 2);
-            r.push(String.fromCharCode(c));
-        }
-        return r.join("");
+    if (!isQuizizzQuiz()) {
+        console.warn(
+            "Warning: Not a Quizizz quiz. Waiting for Quizizz quiz..."
+        );
     }
 
-    static decode(t, e = !1) {
-        if (e) {
-            let e = this.extractHeader(t);
-            return this.decodeRaw(e, !0);
-        }
-        {
-            let e = this.decode(this.extractHeader(t), !0),
-                o = this.extractData(t);
-            return this.decodeRaw(o, !1, e);
-        }
-    }
-
-    static decodeRaw(t, e, o = "quizizz.com") {
-        let s = this.extractVersion(t);
-        let r = 0;
-        (r = e
-            ? o.charCodeAt(0)
-            : o.charCodeAt(0) + o.charCodeAt(o.length - 1)),
-            (r = -r);
-        let n = [];
-        for (let o = 0; o < t.length; o++) {
-            let c = t[o].charCodeAt(0),
-                a = e ? this.safeAdd(c, r) : this.addOffset(c, r, o, s);
-            n.push(String.fromCharCode(a));
-        }
-        return n.join("");
-    }
-
-    static addOffset(t, e, o, s) {
-        return 2 === s
-            ? this.verifyCharCode(t)
-                ? this.safeAdd(t, o % 2 == 0 ? e : -e)
-                : t
-            : this.safeAdd(t, o % 2 == 0 ? e : -e);
-    }
-
-    static extractData(t) {
-        let e = t.charCodeAt(t.length - 2) - 33;
-        return t.slice(e, -2);
-    }
-
-    static extractHeader(t) {
-        let e = t.charCodeAt(t.length - 2) - 33;
-        return t.slice(0, e);
-    }
-
-    static extractVersion(t) {
-        if ("string" == typeof t && t[t.length - 1]) {
-            let e = parseInt(t[t.length - 1], 10);
-            if (!isNaN(e)) return e;
-        }
-        return null;
-    }
-
-    static safeAdd(t, e) {
-        let o = t + e;
-        return o > 65535 ? o - 65535 + 0 - 1 : o < 0 ? 65535 - (0 - o) + 1 : o;
-    }
-
-    static verifyCharCode(t) {
-        if ("number" == typeof t)
-            return !((t >= 55296 && t <= 56319) || (t >= 56320 && t <= 57343));
-    }
-}
-
-function GetSetMeta() {
-    let URL = new URLSearchParams(window.location.search),
-        GameType = URL.get("gameType"),
-        prevConx = localStorage.getItem("previousContext"),
-        parsedConx = JSON.parse(prevConx),
-        encodedRoomHash = parsedConx.game.roomHash,
-        roomHash = Encoding.decode(encodedRoomHash.split("-")[1]),
-        playerId = parsedConx.currentPlayer.playerId;
-    return {
-        URL: URL,
-        GameType: GameType,
-        prevConx: prevConx,
-        parsedConx: parsedConx,
-        encodedRoomHash: encodedRoomHash,
-        roomHash: roomHash,
-        playerId: playerId
-    };
-}
-
-function GetSetData() {
-    let { roomHash, GameType } = GetSetMeta();
-
-    let data = {
-        roomHash: roomHash,
-        type: GameType
-    };
-
-    let xhttp = new XMLHttpRequest();
-    xhttp.open(
-        "POST",
-        "https://game.quizizz.com/play-api/v3/getQuestions",
-        false
-    );
-    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhttp.send(JSON.stringify(data));
-    return JSON.parse(xhttp.responseText);
-}
-
-function GetAnswer(Question) {
-    switch (Question.structure.kind) {
-        case "BLANK":
-            // Text Response, we have no need for image detection in answers
-            let ToRespond = [];
-            for (let i = 0; i < Question.structure.options.length; i++) {
-                ToRespond.push(Question.structure.options[i].text);
+    class Encoding {
+        static encodeRaw(t, e, o = "quizizz.com") {
+            let s = 0;
+            s = e
+                ? o.charCodeAt(0)
+                : o.charCodeAt(0) + o.charCodeAt(o.length - 1);
+            let r = [];
+            for (let o = 0; o < t.length; o++) {
+                let n = t[o].charCodeAt(0),
+                    c = e ? this.safeAdd(n, s) : this.addOffset(n, s, o, 2);
+                r.push(String.fromCharCode(c));
             }
-            return ToRespond;
-        case "MSQ":
-            // Multiple Choice
-            let Answers = Encoding.decode(Question.structure.answer);
-            Answers = JSON.parse(Answers);
-            let TextArray = [];
-            for (let i = 0; i < Answers.length; i++) {
-                if (Answers[i].text == "") {
-                    TextArray.push(
-                        Question.structure.options[Answers[i]].media[0].url
-                    );
-                } else {
-                    TextArray.push(Question.structure.options[Answers[i]].text);
+            return r.join("");
+        }
+
+        static decode(t, e = !1) {
+            if (e) {
+                let e = this.extractHeader(t);
+                return this.decodeRaw(e, !0);
+            }
+            {
+                let e = this.decode(this.extractHeader(t), !0),
+                    o = this.extractData(t);
+                return this.decodeRaw(o, !1, e);
+            }
+        }
+
+        static decodeRaw(t, e, o = "quizizz.com") {
+            let s = this.extractVersion(t);
+            let r = 0;
+            (r = e
+                ? o.charCodeAt(0)
+                : o.charCodeAt(0) + o.charCodeAt(o.length - 1)),
+                (r = -r);
+            let n = [];
+            for (let o = 0; o < t.length; o++) {
+                let c = t[o].charCodeAt(0),
+                    a = e ? this.safeAdd(c, r) : this.addOffset(c, r, o, s);
+                n.push(String.fromCharCode(a));
+            }
+            return n.join("");
+        }
+
+        static addOffset(t, e, o, s) {
+            return 2 === s
+                ? this.verifyCharCode(t)
+                    ? this.safeAdd(t, o % 2 == 0 ? e : -e)
+                    : t
+                : this.safeAdd(t, o % 2 == 0 ? e : -e);
+        }
+
+        static extractData(t) {
+            let e = t.charCodeAt(t.length - 2) - 33;
+            return t.slice(e, -2);
+        }
+
+        static extractHeader(t) {
+            let e = t.charCodeAt(t.length - 2) - 33;
+            return t.slice(0, e);
+        }
+
+        static extractVersion(t) {
+            if ("string" == typeof t && t[t.length - 1]) {
+                let e = parseInt(t[t.length - 1], 10);
+                if (!isNaN(e)) return e;
+            }
+            return null;
+        }
+
+        static safeAdd(t, e) {
+            let o = t + e;
+            return o > 65535
+                ? o - 65535 + 0 - 1
+                : o < 0
+                ? 65535 - (0 - o) + 1
+                : o;
+        }
+
+        static verifyCharCode(t) {
+            if ("number" == typeof t)
+                return !(
+                    (t >= 55296 && t <= 56319) ||
+                    (t >= 56320 && t <= 57343)
+                );
+        }
+    }
+
+    function GetSetMeta() {
+        let URL = new URLSearchParams(window.location.search),
+            GameType = URL.get("gameType"),
+            prevConx = localStorage.getItem("previousContext"),
+            parsedConx = JSON.parse(prevConx),
+            encodedRoomHash = parsedConx.game.roomHash,
+            roomHash = Encoding.decode(encodedRoomHash.split("-")[1]),
+            playerId = parsedConx.currentPlayer.playerId;
+        return {
+            URL: URL,
+            GameType: GameType,
+            prevConx: prevConx,
+            parsedConx: parsedConx,
+            encodedRoomHash: encodedRoomHash,
+            roomHash: roomHash,
+            playerId: playerId
+        };
+    }
+
+    function GetSetData() {
+        let { roomHash, GameType } = GetSetMeta();
+
+        let data = {
+            roomHash: roomHash,
+            type: GameType
+        };
+
+        let xhttp = new XMLHttpRequest();
+        xhttp.open(
+            "POST",
+            "https://game.quizizz.com/play-api/v3/getQuestions",
+            false
+        );
+        xhttp.setRequestHeader(
+            "Content-Type",
+            "application/json;charset=UTF-8"
+        );
+        xhttp.send(JSON.stringify(data));
+        return JSON.parse(xhttp.responseText);
+    }
+
+    function GetAnswer(Question) {
+        switch (Question.structure.kind) {
+            case "BLANK":
+                // Text Response, we have no need for image detection in answers
+                let ToRespond = [];
+                for (let i = 0; i < Question.structure.options.length; i++) {
+                    ToRespond.push(Question.structure.options[i].text);
                 }
-            }
-            return TextArray;
-        case "MCQ":
-            // Single Choice
-            let AnswerNum = Encoding.decode(Question.structure.answer);
-            let Answer = Question.structure.options[AnswerNum].text;
-            if (Answer == "") {
-                Answer = Question.structure.options[AnswerNum].media[0].url;
-            }
-            return Answer;
+                return ToRespond;
+            case "MSQ":
+                // Multiple Choice
+                let Answers = Encoding.decode(Question.structure.answer);
+                Answers = JSON.parse(Answers);
+                let TextArray = [];
+                for (let i = 0; i < Answers.length; i++) {
+                    if (Answers[i].text == "") {
+                        TextArray.push(
+                            Question.structure.options[Answers[i]].media[0].url
+                        );
+                    } else {
+                        TextArray.push(
+                            Question.structure.options[Answers[i]].text
+                        );
+                    }
+                }
+                return TextArray;
+            case "MCQ":
+                // Single Choice
+                let AnswerNum = Encoding.decode(Question.structure.answer);
+                let Answer = Question.structure.options[AnswerNum].text;
+                if (Answer == "") {
+                    Answer = Question.structure.options[AnswerNum].media[0].url;
+                }
+                return Answer;
+        }
     }
-}
 
-function GetQuestion(Set) {
-    for (let v of Object.keys(Set.questions)) {
-        v = Set.questions[v];
-        switch (GetQuestionType()) {
-            case "Both":
-                let BothSRC = document.getElementsByClassName(
-                    "question-media"
-                )[0].children[0].src;
-                BothSRC = BothSRC.slice(0, BothSRC.search("/?w=") - 1);
-                if (v.structure.query.media[0]) {
-                    if (v.structure.query.media[0].url == BothSRC) {
-                        let BothQuestion = document.getElementsByClassName(
-                            "question-text"
-                        )[0].children[0].children[0].innerHTML;
-                        if (Fix(BothQuestion) == Fix(v.structure.query.text)) {
+    function GetQuestion(Set) {
+        for (let v of Object.keys(Set.questions)) {
+            v = Set.questions[v];
+            switch (GetQuestionType()) {
+                case "Both":
+                    let BothSRC = document.getElementsByClassName(
+                        "question-media"
+                    )[0].children[0].src;
+                    BothSRC = BothSRC.slice(0, BothSRC.search("/?w=") - 1);
+                    if (v.structure.query.media[0]) {
+                        if (v.structure.query.media[0].url == BothSRC) {
+                            let BothQuestion = document.getElementsByClassName(
+                                "question-text"
+                            )[0].children[0].children[0].innerHTML;
+                            if (
+                                Fix(BothQuestion) == Fix(v.structure.query.text)
+                            ) {
+                                return v;
+                            }
+                        }
+                    }
+                    break;
+                case "Media":
+                    let CurrentSRC = document.getElementsByClassName(
+                        "question-media"
+                    )[0].children[0].src;
+                    CurrentSRC = CurrentSRC.slice(
+                        0,
+                        CurrentSRC.search("/?w=") - 1
+                    );
+                    if (v.structure.query.media[0]) {
+                        if (v.structure.query.media[0].url == CurrentSRC) {
                             return v;
                         }
                     }
-                }
-                break;
-            case "Media":
-                let CurrentSRC = document.getElementsByClassName(
-                    "question-media"
-                )[0].children[0].src;
-                CurrentSRC = CurrentSRC.slice(0, CurrentSRC.search("/?w=") - 1);
-                if (v.structure.query.media[0]) {
-                    if (v.structure.query.media[0].url == CurrentSRC) {
+                    break;
+                case "Text":
+                    let ToSearchA = document.getElementsByClassName(
+                        "question-text"
+                    )[0].children[0].children[0].innerHTML;
+                    let ToSearchB = v.structure.query.text;
+                    ToSearchB = ToSearchB;
+                    ToSearchA = ToSearchA;
+                    if (Fix(ToSearchA) == Fix(ToSearchB)) {
                         return v;
                     }
-                }
-                break;
-            case "Text":
-                let ToSearchA = document.getElementsByClassName(
-                    "question-text"
-                )[0].children[0].children[0].innerHTML;
-                let ToSearchB = v.structure.query.text;
-                ToSearchB = ToSearchB;
-                ToSearchA = ToSearchA;
-                if (Fix(ToSearchA) == Fix(ToSearchB)) {
-                    return v;
-                }
-                break;
+                    break;
+            }
         }
+        return "Error: No question found";
     }
-    return "Error: No question found";
-}
 
-function GetQuestionType() {
-    if (document.getElementsByClassName("question-media")[0]) {
-        // Media was detected, check if text is too
-        if (document.getElementsByClassName("question-text")[0]) {
-            // Detected text aswell, send it to the onchanged
-            return "Both";
+    function GetQuestionType() {
+        if (document.getElementsByClassName("question-media")[0]) {
+            // Media was detected, check if text is too
+            if (document.getElementsByClassName("question-text")[0]) {
+                // Detected text aswell, send it to the onchanged
+                return "Both";
+            } else {
+                // Failed to detect text aswell, Media is all that we need to send
+                return "Media";
+            }
         } else {
-            // Failed to detect text aswell, Media is all that we need to send
-            return "Media";
+            // Media wasn't detected, no need to check if text was because it has to be
+            return "Text";
         }
-    } else {
-        // Media wasn't detected, no need to check if text was because it has to be
-        return "Text";
     }
-}
 
-let CurrentQuestionNum = "";
-let LastRedemption;
+    let CurrentQuestionNum = "";
+    let LastRedemption;
 
-function Fix(s) {
-    sEnd = s.lastIndexOf("&nbsp;");
-    if (sEnd == s.length - 6) {
-        s = s.substring(0, sEnd);
-    }
-    s = s.replace(/&nbsp;/g, " ");
-    s = s.replace(/&#8203;/g, "‍");
-    s = jQuery("<div>").html(String(s))[0].innerHTML;
-    s = s.replace(/\s+/g, " ");
-    return s;
-}
-
-function cleanup() {
-    console.log("Quizizz quiz ended.");
-    for (let id of ["wrapper-x3Ca8B", "powerups-x3Ca8B", "answers-x3Ca8B"]) {
-        document.getElementById(id).remove();
-    }
-    entry(); // Start waiting again in case another quiz is started.
-}
-
-async function QuestionChangedLoop() {
-    while (true) {
-        if (!isQuizizzQuiz()) {
-            // Game over.
-            cleanup();
-            break;
+    function Fix(s) {
+        /*
+        sEnd = s.lastIndexOf("&nbsp;");
+        if (sEnd == s.length - 6) {
+            s = s.substring(0, sEnd);
         }
-        await sleep(100);
-        let NewNum = document.getElementsByClassName("current-question")[0];
-        let RedemptionQues = document.getElementsByClassName(
-            "redemption-marker"
-        )[0];
-        if (NewNum) {
-            if (NewNum.innerHTML != CurrentQuestionNum) {
-                await sleep(1000);
-                if (document.getElementsByClassName("typed-option-input")[0]) {
-                    let Set = GetSetData();
-                    let Question = GetQuestion(Set);
-                    if (Question == "Error: No question found") {
-                        alert(
-                            "An error occurred, This should never happen. Please DM East_Arctica#9238 with your quiz link."
-                        );
+        s = s.replace(/&nbsp;/g, " ");
+        s = s.replace(/&#8203;/g, "‍");
+        s = jQuery("<div>").html(String(s))[0].innerHTML;
+        s = s.replace(/\s+/g, " ");
+        */
+        return s;
+    }
+
+    function cleanup() {
+        console.log("Quizizz quiz ended.");
+        for (let id of [
+            "wrapper-x3Ca8B",
+            "powerups-x3Ca8B",
+            "answers-x3Ca8B"
+        ]) {
+            document.getElementById(id).remove();
+        }
+        entry(); // Start waiting again in case another quiz is started.
+    }
+
+    async function QuestionChangedLoop() {
+        while (true) {
+            if (!isQuizizzQuiz()) {
+                // Game over.
+                cleanup();
+                break;
+            }
+            await sleep(100);
+            let NewNum = document.getElementsByClassName("current-question")[0];
+            let RedemptionQues = document.getElementsByClassName(
+                "redemption-marker"
+            )[0];
+            if (NewNum) {
+                if (NewNum.innerHTML != CurrentQuestionNum) {
+                    await sleep(1000);
+                    if (
+                        document.getElementsByClassName("typed-option-input")[0]
+                    ) {
+                        let Set = GetSetData();
+                        let Question = GetQuestion(Set);
+                        if (Question == "Error: No question found") {
+                            alert(
+                                "An error occurred, This should never happen. Please DM East_Arctica#9238 with your quiz link."
+                            );
+                        } else {
+                            let Answer = GetAnswer(Question);
+                            if (Array.isArray(Answer)) {
+                                // We are on a question with multiple answers
+                                let ToShow = "";
+                                for (let x = 0; x < Answer.length; x++) {
+                                    if (ToShow == "") {
+                                        ToShow = Answer[x];
+                                    } else {
+                                        ToShow = ToShow + " | " + Answer[x];
+                                    }
+                                }
+                                let ToShowNew =
+                                    "Press Ctrl+C to copy (Answers are seperated by ' | ')";
+                                prompt(ToShowNew, ToShow);
+                            } else {
+                                let NewAnswer = "Press Ctrl+C to copy.";
+                                prompt(NewAnswer, Answer);
+                            }
+                        }
                     } else {
-                        let Answer = GetAnswer(Question);
-                        if (Array.isArray(Answer)) {
-                            // We are on a question with multiple answers
-                            let ToShow = "";
-                            for (let x = 0; x < Answer.length; x++) {
-                                if (ToShow == "") {
-                                    ToShow = Answer[x];
+                        let Choices = document.getElementsByClassName(
+                            "options-container"
+                        )[0].children[0].children;
+                        for (let i = 0; i < Choices.length; i++) {
+                            if (!Choices[i].classList.contains("emoji")) {
+                                let Choice =
+                                    Choices[i].children[0].children[0]
+                                        .children[0].children[0];
+                                let Set = GetSetData();
+                                let Question = GetQuestion(Set);
+                                if (Question === "Error: No question found") {
+                                    alert(
+                                        "Failed to find question! This is a weird issue I don't understand, you will just have to answer this question legit for now."
+                                    );
                                 } else {
-                                    ToShow = ToShow + " | " + Answer[x];
+                                    let Answer = GetAnswer(Question);
+                                    if (Array.isArray(Answer)) {
+                                        // We are on a question with multiple answers
+                                        for (
+                                            let x = 0;
+                                            x < Answer.length;
+                                            x++
+                                        ) {
+                                            if (
+                                                Fix(Choice.innerHTML) ==
+                                                Answer[x]
+                                            ) {
+                                                Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
+                                                    "correct-answer-x3Ca8B"
+                                                );
+                                            }
+                                        }
+                                    } else {
+                                        if (Fix(Choice.innerHTML) == Answer) {
+                                            Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
+                                                "correct-answer-x3Ca8B"
+                                            );
+                                        } else if (
+                                            Choice.style.backgroundImage
+                                                .slice(
+                                                    5,
+                                                    Choice.style.backgroundImage
+                                                        .length - 2
+                                                )
+                                                .slice(
+                                                    0,
+                                                    Choice.style.backgroundImage
+                                                        .slice(
+                                                            5,
+                                                            Choice.style
+                                                                .backgroundImage
+                                                                .length - 2
+                                                        )
+                                                        .search("/?w=") - 1
+                                                ) ==
+                                            GetAnswer(GetQuestion(GetSetData()))
+                                        ) {
+                                            Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
+                                                "correct-answer-x3Ca8B"
+                                            );
+                                        }
+                                    }
                                 }
                             }
-                            let ToShowNew =
-                                "Press Ctrl+C to copy (Answers are seperated by ' | ')";
-                            prompt(ToShowNew, ToShow);
-                        } else {
-                            let NewAnswer = "Press Ctrl+C to copy.";
-                            prompt(NewAnswer, Answer);
                         }
                     }
-                } else {
+                    CurrentQuestionNum = NewNum.innerHTML;
+                }
+            } else if (RedemptionQues) {
+                if (LastRedemption != GetQuestion(GetSetData())) {
                     let Choices = document.getElementsByClassName(
                         "options-container"
                     )[0].children[0].children;
@@ -332,131 +441,70 @@ async function QuestionChangedLoop() {
                             let Choice =
                                 Choices[i].children[0].children[0].children[0]
                                     .children[0];
-                            let Set = GetSetData();
-                            let Question = GetQuestion(Set);
-                            if (Question === "Error: No question found") {
-                                alert(
-                                    "Failed to find question! This is a weird issue I don't understand, you will just have to answer this question legit for now."
+                            if (
+                                Fix(Choice.innerHTML) ==
+                                GetAnswer(GetQuestion(GetSetData()))
+                            ) {
+                                Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
+                                    "correct-answer-x3Ca8B"
                                 );
-                            } else {
-                                let Answer = GetAnswer(Question);
-                                if (Array.isArray(Answer)) {
-                                    // We are on a question with multiple answers
-                                    for (let x = 0; x < Answer.length; x++) {
-                                        if (
-                                            Fix(Choice.innerHTML) == Answer[x]
-                                        ) {
-                                            Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
-                                                "correct-answer-x3Ca8B"
-                                            );
-                                        }
-                                    }
-                                } else {
-                                    if (Fix(Choice.innerHTML) == Answer) {
-                                        Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
-                                            "correct-answer-x3Ca8B"
-                                        );
-                                    } else if (
-                                        Choice.style.backgroundImage
-                                            .slice(
-                                                5,
-                                                Choice.style.backgroundImage
-                                                    .length - 2
-                                            )
-                                            .slice(
-                                                0,
-                                                Choice.style.backgroundImage
-                                                    .slice(
-                                                        5,
-                                                        Choice.style
-                                                            .backgroundImage
-                                                            .length - 2
-                                                    )
-                                                    .search("/?w=") - 1
-                                            ) ==
-                                        GetAnswer(GetQuestion(GetSetData()))
-                                    ) {
-                                        Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
-                                            "correct-answer-x3Ca8B"
-                                        );
-                                    }
-                                }
                             }
                         }
                     }
+                    LastRedemption = GetQuestion(GetSetData());
                 }
-                CurrentQuestionNum = NewNum.innerHTML;
-            }
-        } else if (RedemptionQues) {
-            if (LastRedemption != GetQuestion(GetSetData())) {
-                let Choices = document.getElementsByClassName(
-                    "options-container"
-                )[0].children[0].children;
-                for (let i = 0; i < Choices.length; i++) {
-                    if (!Choices[i].classList.contains("emoji")) {
-                        let Choice =
-                            Choices[i].children[0].children[0].children[0]
-                                .children[0];
-                        if (
-                            Fix(Choice.innerHTML) ==
-                            GetAnswer(GetQuestion(GetSetData()))
-                        ) {
-                            Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
-                                "correct-answer-x3Ca8B"
-                            );
-                        }
-                    }
-                }
-                LastRedemption = GetQuestion(GetSetData());
             }
         }
     }
-}
 
-function createCreatePowerupButton() {
-    window.createPowerup = function () {
-        let { GameType, roomHash, playerId } = GetSetMeta();
-        let chosenPowerup = window.prompt(
-            "Please enter your desired powerup.",
-            "2x"
-        );
-        if (![].includes(chosenPowerup)) {  // TODO: insert list of powerups
-            if (
-                !window.confirm(
-                    "That is not a valid powerup.\nContinue anyway?"
-                )
-            ) {
-                return false;
-            }
-        }
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "https://game.quizizz.com/play-api/awardPowerup");
-        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xhr.send(
-            JSON.stringify({
-                gameType: GameType,
-                roomHash: roomHash,
-                playerId: playerId,
-                powerup: {
-                    name: chosenPowerup
-                }
-            })
-        );
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status != 200) {
-                    alert("Sorry, an error occurred.");
+    function createCreatePowerupButton() {
+        window.createPowerup = function () {
+            let { GameType, roomHash, playerId } = GetSetMeta();
+            let chosenPowerup = window.prompt(
+                "Please enter your desired powerup.",
+                "2x"
+            );
+            if (![].includes(chosenPowerup)) {
+                // TODO: insert list of powerups
+                if (
+                    !window.confirm(
+                        "That is not a valid powerup.\nContinue anyway?"
+                    )
+                ) {
                     return false;
                 }
-                if (window.confirm("Done! Refresh to see powerups?")) {
-                    window.location.reload();
-                }
             }
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://game.quizizz.com/play-api/awardPowerup");
+            xhr.setRequestHeader(
+                "Content-Type",
+                "application/json;charset=UTF-8"
+            );
+            xhr.send(
+                JSON.stringify({
+                    gameType: GameType,
+                    roomHash: roomHash,
+                    playerId: playerId,
+                    powerup: {
+                        name: chosenPowerup
+                    }
+                })
+            );
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status != 200) {
+                        alert("Sorry, an error occurred.");
+                        return false;
+                    }
+                    if (window.confirm("Done! Refresh to see powerups?")) {
+                        window.location.reload();
+                    }
+                }
+            };
         };
-    };
-    document.head.insertAdjacentHTML(
-        "beforeend",
-        `
+        document.head.insertAdjacentHTML(
+            "beforeend",
+            `
 <style id="powerups-x3Ca8B" type="text/css">
 #wrapper-x3Ca8B {
     position: fixed;
@@ -495,11 +543,11 @@ function createCreatePowerupButton() {
 }
 </style>
     `
-    );
+        );
 
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        `
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            `
 <div id="wrapper-x3Ca8B" role="button" onclick="window.createPowerup();">
     <div id="container-x3Ca8B">
         <span id="label-x3Ca8B">Create Powerup</span>
@@ -508,19 +556,19 @@ function createCreatePowerupButton() {
     </div>
 </div>
     `
-    );
-}
-
-async function entry() {
-    if (document.domain != "quizizz.com") {
-        throw new Error("Not a Quizizz quiz.");
+        );
     }
-    // await sleep(1000);
-    await waitForQuizizzQuiz();
-    createCreatePowerupButton();
-    document.head.insertAdjacentHTML(
-        "beforeend",
-        `
+
+    async function entry() {
+        if (document.domain != "quizizz.com") {
+            throw new Error("Not a Quizizz quiz.");
+        }
+        // await sleep(1000);
+        await waitForQuizizzQuiz();
+        createCreatePowerupButton();
+        document.head.insertAdjacentHTML(
+            "beforeend",
+            `
 <style id="answers-x3Ca8B" type="text/css">
 .correct-answer-x3Ca8B > div > div {
     border: none !important;
@@ -531,16 +579,17 @@ async function entry() {
 }
 </style>
     `
-    );
-    try {
-        await QuestionChangedLoop();
-    } catch (err) {
-        if (!isQuizizzQuiz()) {
-            // Game over.
-            cleanup();
-        } else {
-            throw err;
+        );
+        try {
+            await QuestionChangedLoop();
+        } catch (err) {
+            if (!isQuizizzQuiz()) {
+                // Game over.
+                cleanup();
+            } else {
+                throw err;
+            }
         }
     }
-}
-entry();
+    entry();
+})();
