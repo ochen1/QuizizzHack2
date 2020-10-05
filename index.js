@@ -14,7 +14,16 @@
     // Constants
     const ErrorReportingURL = "";
     const MetricsURL = null;
-    const ValidPowerups = [];
+    const ValidPowerups = [
+        "2x",
+        "50-50",
+        "eraser",
+        "immunity",
+        "time-freeze",
+        "power-play",
+        "streak-saver",
+        "glitch"
+    ];
 
     // Inject required libraries
     let script;
@@ -492,7 +501,8 @@
             let chosenPowerup = await new Promise((resolve) => {
                 alertify.prompt(
                     "Choose Powerup",
-                    "Please enter your desired powerup.",
+                    "Please enter your desired powerup.<br>Here is a handy list: " +
+                        ValidPowerups.join(", "),
                     "2x",
                     function (evt, value) {
                         resolve(value);
@@ -567,7 +577,7 @@
                         "SUCCESS: " +
                             ret.powerup.status +
                             " " +
-                            ret.powerup.name,
+                            ret.powerup.name.toUpperCase(),
                         "success",
                         3
                     );
