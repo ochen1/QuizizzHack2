@@ -543,7 +543,7 @@
                 })
             );
             xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
+                if (xhr.readyState === 4) {
                     let ret = JSON.parse(xhr.responseText)
                     if (xhr.status != 200 || ret.error) {
                         // The attempt to add the powerup failed for some reason.
