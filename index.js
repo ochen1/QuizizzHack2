@@ -420,7 +420,7 @@ function createCreatePowerupButton() {
             "Please enter your desired powerup.",
             "2x"
         );
-        if (![].includes(chosenPowerup)) {
+        if (![].includes(chosenPowerup)) {  // TODO: insert list of powerups
             if (
                 !window.confirm(
                     "That is not a valid powerup.\nContinue anyway?"
