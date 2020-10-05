@@ -2,18 +2,23 @@
 // @name         Quizizz Answers Highlighter and Powerup Generator
 // @namespace    https://github.com/ochen1/QuizizzHack2
 // @version      0.1
-// @description  Adds a button 
-// @author       You
+// @description  Highlight answers from Quizizz quizzes and adds a button to get any powerup your heart desires.
+// @author       ochen1 / chandan1602
 // @match        *://quizizz.com/join/*
 // @grant        none
 // ==/UserScript==
 
 (function () {
     "use strict";
-    let script = document.createElement("script");
-    script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
-    script.type = "text/javascript";
-    document.getElementsByTagName("head")[0].appendChild(script);
+
+    // Inject required libraries
+    let script;
+    for (let lib of ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"]) {
+        script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js";
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    }
 
     function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,14 +46,6 @@
             }
         });
     }
-
-    /*
-if (
-    !isQuizizzQuiz()
-) {
-    throw new Error("Not a Quizizz quiz.");
-}
-*/
 
     if (!isQuizizzQuiz()) {
         console.warn(
@@ -293,6 +290,7 @@ if (
     let LastRedemption;
 
     function Fix(s) {
+        // TODO: fix Fix() function
         /*
         sEnd = s.lastIndexOf("&nbsp;");
         if (sEnd == s.length - 6) {
@@ -307,13 +305,24 @@ if (
     }
 
     function cleanup() {
+        // The quiz has ended.
+        // We need to collect and clean up the elements we've injected.
         console.log("Quizizz quiz ended.");
         for (let id of [
+            // Remove every element with the ids in the list
             "wrapper-x3Ca8B",
             "powerups-x3Ca8B",
             "answers-x3Ca8B"
         ]) {
-            document.getElementById(id).remove();
+            if (document.getElementById(id)) {
+                document.getElementById(id).remove();
+            } else {
+                console.warn(
+                    "Warning: Tried to remove element on cleanup with id " +
+                        id +
+                        " but could not find it."
+                );
+            }
         }
         entry(); // Start waiting again in case another quiz is started.
     }
@@ -458,7 +467,9 @@ if (
     }
 
     function createCreatePowerupButton() {
+        // Define the function the button should call when it is clicked.
         window.createPowerup = function () {
+            // TODO: Use custom popup modal functions.
             let { GameType, roomHash, playerId } = GetSetMeta();
             let chosenPowerup = window.prompt(
                 "Please enter your desired powerup.",
@@ -493,7 +504,9 @@ if (
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) {
                     if (xhr.status != 200) {
-                        alert("Sorry, an error occurred.");
+                        // The attempt to add the powerup failed for some reason.
+                        // TODO: Automatically report this error.
+                        window.alert("Sorry, an error occurred.");
                         return false;
                     }
                     if (window.confirm("Done! Refresh to see powerups?")) {
