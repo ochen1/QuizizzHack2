@@ -3,7 +3,7 @@
 // @namespace    https://github.com/ochen1/QuizizzHack2
 // @supportURL   https://github.com/ochen1/QuizizzHack2
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=Z87WKG5G9JBYL&item_name=Userscript+-+Quizizz+Hack+2+Donation&currency_code=CAD&source=url
-// @version      0.1
+// @version      0.1.2
 // @description  Highlight answers from Quizizz quizzes and adds a button to get any powerup your heart desires.
 // @author       ochen1 / chandan1602
 // @match        *://quizizz.com/join/*
@@ -321,16 +321,14 @@
 
     function Fix(s) {
         // TODO: fix Fix() function
-        /*
-        sEnd = s.lastIndexOf("&nbsp;");
+        let sEnd = s.lastIndexOf("&nbsp;");
         if (sEnd == s.length - 6) {
             s = s.substring(0, sEnd);
         }
         s = s.replace(/&nbsp;/g, " ");
         s = s.replace(/&#8203;/g, "‍");
-        s = jQuery("<div>").html(String(s))[0].innerHTML;
+        // s = jQuery("<div>").html(String(s))[0].innerHTML;
         s = s.replace(/\s+/g, " ");
-        */
         return s;
     }
 
@@ -364,11 +362,12 @@
                 cleanup();
                 break;
             }
+            // TODO: Still crashes at the end of the redemption question.
             await sleep(100);
-            let NewNum = document.getElementsByClassName("current-question")[0];
+            let NewNum = document.getElementsByClassName("current-question")[0] === undefined ? false : document.getElementsByClassName("current-question")[0];
             let RedemptionQues = document.getElementsByClassName(
                 "redemption-marker"
-            )[0];
+            ).length == 1;
             if (NewNum) {
                 if (NewNum.innerHTML != CurrentQuestionNum) {
                     await sleep(1000);
@@ -471,6 +470,9 @@
                     CurrentQuestionNum = NewNum.innerHTML;
                 }
             } else if (RedemptionQues) {
+                // Wait for the animation to finish
+                // TODO: Wait for element instead of using time. (Also needs to be fixed for users who get more than one question wrong.)
+                await sleep(4000);
                 if (LastRedemption != GetQuestion(GetSetData())) {
                     let Choices = document.getElementsByClassName(
                         "options-container"
@@ -485,7 +487,7 @@
                                 GetAnswer(GetQuestion(GetSetData()))
                             ) {
                                 Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
-                                    "correct-answer-x3Ca8B"
+                                    ...["correct-answer-x3Ca8B", "redemption-answer-x3Ca8B"]
                                 );
                             }
                         }
@@ -659,8 +661,12 @@
             `
 <style id="answers-x3Ca8B" type="text/css">
 .correct-answer-x3Ca8B > div > div:nth-of-type(1) {
+    --answer-box-shadow-color-x3Ca8B: #ededed;
     border: none !important;
-    box-shadow: 0px 0px 10px 10px inset #ededed !important;
+    box-shadow: 0px 0px 10px 10px inset var(--answer-box-shadow-color-x3Ca8B) !important;
+}
+.correct-answer-x3Ca8B.redemption-answer-x3Ca8B > div > div:nth-of-type(1) {
+    --answer-box-shadow-color-x3Ca8B: #212121 !important;
 }
 .correct-answer-x3Ca8B p {
     color: lime !important;
