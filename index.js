@@ -342,7 +342,6 @@
     let LastRedemption;
 
     function Fix(s) {
-        // TODO: fix Fix() function
         let sEnd = s.lastIndexOf("&nbsp;");
         if (sEnd == s.length - 6) {
             s = s.substring(0, sEnd);
@@ -384,8 +383,8 @@
                 cleanup();
                 break;
             }
-            // TODO: Still crashes at the end of the redemption question.
             await sleep(100);
+            // await waitForElement(['.current-question', '.redemption-marker']);
             let NewNum =
                 document.getElementsByClassName("current-question")[0] ===
                 undefined
@@ -552,7 +551,6 @@
                 return false;
             }
             if (!ValidPowerups.includes(chosenPowerup)) {
-                // TODO: insert list of powerups
                 if (
                     !(await new Promise((resolve) => {
                         alertify.confirm(
@@ -683,7 +681,6 @@
         if (document.domain != "quizizz.com") {
             throw new Error("Not a Quizizz quiz.");
         }
-        // await sleep(1000);
         await waitForQuizizzQuiz();
         createCreatePowerupButton();
         document.head.insertAdjacentHTML(
