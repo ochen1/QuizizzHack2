@@ -54,6 +54,28 @@
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function waitForElement(queries, timeoutms) {
+        return new Promise(async (resolve, reject) => {
+            if (timeoutms) {
+                let timeout = setTimeout(() => {
+                    reject('Waiting for element timed out.');
+                }, timeoutms);
+            }
+            while (true) {
+                for (let query of queries) {
+                    if (document.querySelector(query)) {
+                        if (timeoutms) {
+                            clearTimeout(timeout);
+                        }
+                        resolve();
+                        return;
+                    }
+                }
+                await sleep(1000);
+            }
+        });
+    }
+
     function isQuizizzQuiz() {
         return (
             window.location.pathname.split("/").slice(1, 3).join("-") ==
@@ -327,7 +349,7 @@
         }
         s = s.replace(/&nbsp;/g, " ");
         s = s.replace(/&#8203;/g, "‍");
-        // s = jQuery("<div>").html(String(s))[0].innerHTML;
+        s = jQuery("<div>").html(String(s))[0].innerHTML;
         s = s.replace(/\s+/g, " ");
         return s;
     }
@@ -369,6 +391,7 @@
                 "redemption-marker"
             ).length == 1;
             if (NewNum) {
+                await waitForElement(['.options-container', '.typed-option-input']);
                 if (NewNum.innerHTML != CurrentQuestionNum) {
                     await sleep(1000);
                     if (
@@ -470,9 +493,6 @@
                     CurrentQuestionNum = NewNum.innerHTML;
                 }
             } else if (RedemptionQues) {
-                // Wait for the animation to finish
-                // TODO: Wait for element instead of using time. (Also needs to be fixed for users who get more than one question wrong.)
-                await sleep(4000);
                 if (LastRedemption != GetQuestion(GetSetData())) {
                     let Choices = document.getElementsByClassName(
                         "options-container"
@@ -634,7 +654,7 @@
 </style>
     `
         );
-
+        //TODO: Better UI + settings control
         document.body.insertAdjacentHTML(
             "beforeend",
             `
