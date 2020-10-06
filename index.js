@@ -58,7 +58,7 @@
         return new Promise(async (resolve, reject) => {
             if (timeoutms) {
                 let timeout = setTimeout(() => {
-                    reject('Waiting for element timed out.');
+                    reject("Waiting for element timed out.");
                 }, timeoutms);
             }
             while (true) {
@@ -386,12 +386,19 @@
             }
             // TODO: Still crashes at the end of the redemption question.
             await sleep(100);
-            let NewNum = document.getElementsByClassName("current-question")[0] === undefined ? false : document.getElementsByClassName("current-question")[0];
-            let RedemptionQues = document.getElementsByClassName(
-                "redemption-marker"
-            ).length == 1;
+            let NewNum =
+                document.getElementsByClassName("current-question")[0] ===
+                undefined
+                    ? false
+                    : document.getElementsByClassName("current-question")[0];
+            let RedemptionQues =
+                document.getElementsByClassName("redemption-marker").length ==
+                1;
             if (NewNum) {
-                await waitForElement(['.options-container', '.typed-option-input']);
+                await waitForElement([
+                    ".options-container",
+                    ".typed-option-input"
+                ]);
                 if (NewNum.innerHTML != CurrentQuestionNum) {
                     await sleep(1000);
                     if (
@@ -507,7 +514,10 @@
                                 GetAnswer(GetQuestion(GetSetData()))
                             ) {
                                 Choice.parentElement.parentElement.parentElement.parentElement.classList.add(
-                                    ...["correct-answer-x3Ca8B", "redemption-answer-x3Ca8B"]
+                                    ...[
+                                        "correct-answer-x3Ca8B",
+                                        "redemption-answer-x3Ca8B"
+                                    ]
                                 );
                             }
                         }
