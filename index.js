@@ -1,6 +1,8 @@
 // ==UserScript==
 // @name         Quizizz Answers Highlighter and Powerup Generator
 // @namespace    https://github.com/ochen1/QuizizzHack2
+// @supportURL   https://github.com/ochen1/QuizizzHack2
+// @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=Z87WKG5G9JBYL&item_name=Userscript+-+Quizizz+Hack+2+Donation&currency_code=CAD&source=url
 // @version      0.1
 // @description  Highlight answers from Quizizz quizzes and adds a button to get any powerup your heart desires.
 // @author       ochen1 / chandan1602
