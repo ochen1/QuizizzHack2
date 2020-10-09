@@ -85,7 +85,7 @@
         );
     }
 
-    function waitForQuizizzQuiz(interval) {
+    function waitForQuizizzQuiz() {
         return new Promise(async function (resolve) {
             while (true) {
                 if (isQuizizzQuiz()) {
