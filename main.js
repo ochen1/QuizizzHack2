@@ -160,38 +160,48 @@ function GetCurrentQuestion(set) {
 
 function waitForQuestionChange() {
     return new Promise(async (resolve) => {
-        while (
-            window.LastCompletedQuestionNumber ==
-            parseInt(document.querySelector(".current-question").innerText)
-        ) {
-            await sleep(500);
+        try {
+            while (
+                window.LastCompletedQuestionNumber ==
+                parseInt(document.querySelector(".current-question").innerText)
+            ) {
+                await sleep(500);
+            }
+            console.debug(
+                "Question changed:",
+                window.LastCompletedQuestionNumber,
+                parseInt(document.querySelector(".current-question").innerText)
+            );
+            window.LastCompletedQuestionNumber = parseInt(
+                document.querySelector(".current-question").innerText
+            );
+        } catch (err) {
+            if (!err instanceof TypeError) {
+                throw err;
+            }
+        } finally {
+            resolve();
         }
-        console.debug(
-            "Question changed:",
-            window.LastCompletedQuestionNumber,
-            parseInt(document.querySelector(".current-question").innerText)
-        );
-        window.LastCompletedQuestionNumber = parseInt(
-            document.querySelector(".current-question").innerText
-        );
-        resolve();
     });
 }
 
 async function mainLoop() {
-    await waitForQuizizzQuiz();
     window.LastCompletedQuestionNumber = 0;
     while (isQuizizzQuiz()) {
-        try {
-            await waitForQuestionChange();
-        } catch (err) {}
-        let questionNum = document.querySelector(".current-question")
-            ? parseInt(document.querySelector(".current-question").innerText)
-            : false; // The current question was not found
+        await waitForQuestionChange();
         let isRedemptionQuestion = !!document.querySelector(
             ".redemption-marker"
-        );
-        if (questionNum) {
+            );
+            if (isRedemptionQuestion) {
+                if (document.querySelector("screen-redemption-question-selector[data-screen='redemption-question-selector']")) {
+                    // Question not present on page, still waiting for question selection
+                    await waitForElement([".transitioner .quiz-container.question-redemption-theme[currentpage='inGame|quiz']"]);
+                }
+            }
+            let questionNum = document.querySelector(".current-question")
+                ? parseInt(document.querySelector(".current-question").innerText)
+                : false; // The current question was not found
+            if (questionNum) {
             await waitForElement([".options-container", ".typed-option-input"]);
             let currentSet = await Context.GetSetData();
             let currentQuestion = GetCurrentQuestion(currentSet);
@@ -213,6 +223,8 @@ async function mainLoop() {
                     console.log("Single Choice", answer);
                     break;
             }
+        } else {
+            // TODO: Auto error reporting
         }
     }
     PowerupGen.cleanup();

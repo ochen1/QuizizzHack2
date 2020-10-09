@@ -4,7 +4,9 @@ function isQuizizzQuiz() {
         return false;
     } else {
         gameConx = JSON.parse(localStorage.getItem("previousContext")).game;
-        if (gameConx.isOver) {
+        if (!gameConx) {
+            return false;
+        } else if (gameConx.isOver) {
             return false;
         } else {
             return true;

@@ -6,8 +6,12 @@ if (!isQuizizzQuiz()) {
 
 function entry() {
     injectLibs();
-    PowerupGen.createCreatePowerupButton();
-    mainLoop();
+    waitForQuizizzQuiz().then(() => {
+        waitForElement([".in-quiz"]).then(() => {
+            PowerupGen.createCreatePowerupButton();
+            mainLoop();
+        });
+    });
 }
 
 entry();
