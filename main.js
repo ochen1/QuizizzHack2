@@ -171,12 +171,7 @@ function waitForQuestionChange() {
 async function mainLoop() {
     await waitForQuizizzQuiz();
     window.LastCompletedQuestionNumber = 0;
-    while (true) {
-        if (!isQuizizzQuiz()) {
-            // Game over.
-            cleanup();
-            break;
-        } // TODO: use isGameOver() from LS context
+    while (isQuizizzQuiz()) {
         await waitForQuestionChange();
         let questionNum = document.querySelector(".current-question")
             ? parseInt(document.querySelector(".current-question").innerText)
@@ -208,5 +203,7 @@ async function mainLoop() {
             }
         }
     }
+    PowerupGen.cleanup();
+    // TODO: use isGameOver() from LS context
     mainLoop(); // Start waiting again in case another quiz is started.
 }

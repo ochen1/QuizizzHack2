@@ -155,9 +155,8 @@ class PowerupGen {
         console.log("Quizizz quiz ended.");
         for (let id of [
             // Remove every element with the ids in the list
-            "wrapper-x3Ca8B",
-            "powerups-x3Ca8B",
-            "answers-x3Ca8B"
+            "wrapper-x3Ca8B",   // Create Powerup Button
+            "powerups-x3Ca8B"   // Create Powerup Stylesheet
         ]) {
             if (document.getElementById(id)) {
                 document.getElementById(id).remove();
