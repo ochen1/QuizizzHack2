@@ -1,9 +1,11 @@
 class PowerupGen {
     static async createCreatePowerupButton() {
+        // TODO: Create settings panel
         // Define the function the button should call when it is clicked.
         window.createPowerup = async function () {
             let { gameType, roomHash, playerId } = Context.GetGameMeta();
             let chosenPowerup = await new Promise((resolve) => {
+                // TODO: Add choice buttons (eg. automatically fill the input with option when the li is clicked)
                 alertify.prompt(
                     "Choose Powerup",
                     "Please enter your desired powerup.<br>Here is a handy list: " +
@@ -92,11 +94,12 @@ class PowerupGen {
                 }
             };
         };
+        /*
         document.head.insertAdjacentHTML(
             "beforeend",
             `
-    <style id="powerups-x3Ca8B" type="text/css">
-    #wrapper-x3Ca8B {
+<style id="powerups-x3Ca8B" type="text/css">
+#wrapper-x3Ca8B {
     position: fixed;
     top: 5vh;
     right: 1vw;
@@ -114,39 +117,50 @@ class PowerupGen {
     user-select: none;
     z-index: 1000;
     cursor: pointer;
-    }
-    #wrapper-x3Ca8B:hover {
+}
+#wrapper-x3Ca8B:hover {
     opacity: 0.8;
-    }
-    #wrapper-x3Ca8B:active {
+}
+#wrapper-x3Ca8B:active {
     background-color: #2E7D32;
-    }
-    #label-x3Ca8B {
+}
+#label-x3Ca8B {
     color: #fafafa;
     font-size: 19pt;
     font-family: "Trebuchet MS", Helvetica, sans-serif;
-    }
-    #author-x3Ca8B {
+}
+#author-x3Ca8B {
     color: #dadada;
     font-size: 8pt;
     font-family: "Lucida Console", Monaco, monospace;
-    }
-    </style>
-    `
+}
+</style>
+`
         );
-        //TODO: Better UI + settings control
         document.body.insertAdjacentHTML(
             "beforeend",
             `
-    <div id="wrapper-x3Ca8B" role="button" onclick="window.createPowerup();">
+<div id="wrapper-x3Ca8B" role="button" onclick="window.createPowerup();">
     <div id="container-x3Ca8B">
         <span id="label-x3Ca8B">Create Powerup</span>
         <br>
         <span id="author-x3Ca8B">ochen1</span>
     </div>
-    </div>
-    `
+</div>
+`
         );
+        */
+
+        document.querySelector(".control-center-container > .tool-bar > .powerup-wrapper").insertAdjacentHTML(
+            "beforeend",
+            `
+<div data-v-5bf8f3b0="" id="id="wrapper-x3Ca8B" class="powerup-container" style="opacity: 1;" onclick="window.createPowerup();">
+    <div data-v-5bf8f3b0="" class="powerup-icon control-center-btn" style="background: grey;">
+        <img data-v-5bf8f3b0="" src="https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/solid/plus-circle.svg?raw=true" class="powerup-icon-image" style="filter: contrast(80%)">
+    </div>
+    <span data-v-5bf8f3b0="" class="btn-title">Add New</span>
+</div>
+`);
     }
 
     static cleanup() {
