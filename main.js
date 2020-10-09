@@ -182,7 +182,9 @@ async function mainLoop() {
     await waitForQuizizzQuiz();
     window.LastCompletedQuestionNumber = 0;
     while (isQuizizzQuiz()) {
-        await waitForQuestionChange();
+        try {
+            await waitForQuestionChange();
+        } catch (err) {}
         let questionNum = document.querySelector(".current-question")
             ? parseInt(document.querySelector(".current-question").innerText)
             : false; // The current question was not found
