@@ -214,6 +214,5 @@ async function mainLoop() {
         }
     }
     PowerupGen.cleanup();
-    // TODO: use isGameOver() from LS context
     mainLoop(); // Start waiting again in case another quiz is started.
 }

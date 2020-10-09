@@ -151,12 +151,54 @@ class PowerupGen {
         );
         */
 
+        // Rainbow animation from: https://codepen.io/nohoid/pen/kIfto
+        document.head.insertAdjacentHTML(
+        "beforeend",
+        `
+<style id="powerups-x3Ca8B" type="text/css">
+#btn-rainbow-x3Ca8B {
+    background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+    background-size: 1800% 1800%;
+    -webkit-animation: rainbow 8s ease infinite;
+    -z-animation: rainbow 8s ease infinite;
+    -o-animation: rainbow 8s ease infinite;
+    animation: rainbow 8s ease infinite;
+    transition: background 250ms ease-in;
+}
+#btn-rainbow-x3Ca8B img {
+    filter: contrast(60%);
+}
+
+@-webkit-keyframes rainbow {
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+@-moz-keyframes rainbow {
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+@-o-keyframes rainbow {
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+@keyframes rainbow { 
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+</style>
+`
+    );
+
         document.querySelector(".control-center-container > .tool-bar > .powerup-wrapper").insertAdjacentHTML(
             "beforeend",
             `
-<div data-v-5bf8f3b0="" id="id="wrapper-x3Ca8B" class="powerup-container" style="opacity: 1;" onclick="window.createPowerup();">
-    <div data-v-5bf8f3b0="" class="powerup-icon control-center-btn" style="background: grey;">
-        <img data-v-5bf8f3b0="" src="https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/solid/plus-circle.svg?raw=true" class="powerup-icon-image" style="filter: contrast(80%)">
+<div data-v-5bf8f3b0="" id="wrapper-x3Ca8B" class="powerup-container" style="opacity: 1;" onclick="window.createPowerup();">
+    <div data-v-5bf8f3b0="" id="btn-rainbow-x3Ca8B" class="powerup-icon control-center-btn">
+        <img data-v-5bf8f3b0="" src="https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/solid/plus-circle.svg?raw=true" class="powerup-icon-image">
     </div>
     <span data-v-5bf8f3b0="" class="btn-title">Add New</span>
 </div>

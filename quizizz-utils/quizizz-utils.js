@@ -1,11 +1,15 @@
 // Quizizz Libraries
 function isQuizizzQuiz() {
-    return (
-        window.location.pathname.split("/").slice(1, 3).join("-") ==
-            "join-game" &&
-        new URLSearchParams(window.location.search).get("gameType") &&
-        JSON.parse(localStorage.getItem("previousContext")).game !== null
-    );
+    if (window.location.pathname.split("/").slice(1, 3).join("-") != "join-game") {
+        return false;
+    } else {
+        gameConx = JSON.parse(localStorage.getItem("previousContext")).game;
+        if (gameConx.isOver) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 function waitForQuizizzQuiz() {
