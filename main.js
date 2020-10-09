@@ -19,7 +19,6 @@ function injectLibs() {
     console.debug("Injecting required libraries...");
     let script;
     for (let lib of [
-        "//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js",
         "//cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"
     ]) {
         script = document.createElement("script");
