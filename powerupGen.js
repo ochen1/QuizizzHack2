@@ -2,7 +2,7 @@ class PowerupGen {
     static async createCreatePowerupButton() {
         // Define the function the button should call when it is clicked.
         window.createPowerup = async function () {
-            let { GameType, roomHash, playerId } = Context.GetSetMeta();
+            let { GameType, roomHash, playerId } = Context.GetGameMeta();
             let chosenPowerup = await new Promise((resolve) => {
                 alertify.prompt(
                     "Choose Powerup",
@@ -142,7 +142,7 @@ class PowerupGen {
     <div id="container-x3Ca8B">
         <span id="label-x3Ca8B">Create Powerup</span>
         <br>
-        <span id="author-x3Ca8B">ochen1 / chandan1602</span>
+        <span id="author-x3Ca8B">ochen1</span>
     </div>
     </div>
     `
@@ -169,6 +169,5 @@ class PowerupGen {
                 );
             }
         }
-        entry(); // Start waiting again in case another quiz is started.
     }
 }

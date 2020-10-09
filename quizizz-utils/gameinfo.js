@@ -25,7 +25,7 @@ class Context {
             hasJoinedTheGame: hasJoinedTheGame
         };
     }
-    
+
     static GetUserMeta() {
         let prevConx = localStorage.getItem("previousContext"),
             parsedConx = JSON.parse(prevConx);
@@ -49,7 +49,8 @@ class Context {
             groups = parsedConx.currentPlayer.groups,
             teachers = parsedConx.currentPlayer.teachers,
             isLoggedIn = parsedConx.currentPlayer.isLoggedIn,
-            emailValidationStatus = parsedConx.currentPlayer.emailValidationStatus,
+            emailValidationStatus =
+                parsedConx.currentPlayer.emailValidationStatus,
             hasPassword = parsedConx.currentPlayer.hasPassword;
         return {
             email: email,
@@ -76,7 +77,7 @@ class Context {
             hasPassword: hasPassword
         };
     }
-    
+
     static GetGameMeta() {
         let prevConx = localStorage.getItem("previousContext"),
             parsedConx = JSON.parse(prevConx);
@@ -130,7 +131,7 @@ class Context {
             questionIdForQuestionStartTimestamp: questionIdForQuestionStartTimestamp
         };
     }
-    
+
     static GetAppSettings() {
         let prevConx = localStorage.getItem("previousContext"),
             parsedConx = JSON.parse(prevConx);
@@ -149,10 +150,10 @@ class Context {
             selectedTheme: selectedTheme
         };
     }
-    
-    static GetSetData() {
-        let { roomHash, gameType } = GetSetMeta();
-    
+
+    static async GetSetData() {
+        let { roomHash, gameType } = this.GetGameMeta();
+
         let xhr = new XMLHttpRequest();
         xhr.open(
             "POST",
@@ -166,11 +167,29 @@ class Context {
                 type: gameType
             })
         );
-    
-        xhr.onreadystatechange = () => {
-            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                return JSON.parse(xhr.responseText);
+
+        await new Promise((resolve) => {
+            if (
+                xhr.readyState === XMLHttpRequest.DONE &&
+                xhr.status === 200
+            ) {
+                resolve();
+            } else {
+                console.log(xhr);
             }
-        };
+            xhr.onreadystatechange = () => {
+                if (
+                    xhr.readyState === XMLHttpRequest.DONE &&
+                    xhr.status === 200
+                ) {
+                    resolve();
+                } else {
+                    console.log(xhr);
+                }
+            };
+        });
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            return JSON.parse(xhr.responseText);
+        }
     }
 }

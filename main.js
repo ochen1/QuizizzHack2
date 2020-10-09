@@ -121,32 +121,32 @@ function GetCurrentQuestion(set) {
     }
     if (currentQuestionType == "text" || currentQuestionType == "both") {
         text = document.querySelector(".quiz-container .question-text p")
-            .innerHTML;
+            .outerHTML;
     }
     console.debug("Current question identifier:", currentQuestionType, text, mediaSRC);
-    for (let question of set.questions) {
+    for (let question of Object.values(set.questions)) {
         // Loop through list of questions to match it with the current question
         if (
             question.structure.query.media[0] &&
-            v.structure.query.text &&
+            question.structure.query.text &&
             mediaSRC &&
             text
         ) {
             // Candidate question and current question are both questions with both media and text
             if (
-                v.structure.query.media[0].url == mediaSRC &&
-                text == v.structure.query.text
+                question.structure.query.media[0].url == mediaSRC &&
+                text == question.structure.query.text
             ) {
                 return question;
             }
         } else if (question.structure.query.media[0] && mediaSRC) {
             // Candidate question and current question are both media questions
-            if (v.structure.query.media[0].url == mediaSRC) {
+            if (question.structure.query.media[0].url == mediaSRC) {
                 return question;
             }
         } else if (question.structure.query.text && text) {
             // Candidate question and current question are both text questions
-            if (text == v.structure.query.text) {
+            if (text == question.structure.query.text) {
                 return question;
             }
         }
@@ -156,20 +156,21 @@ function GetCurrentQuestion(set) {
 
 function waitForQuestionChange() {
     return new Promise(async (resolve) => {
-        let originalQuestionNum = parseInt(
-            document.querySelector(".current-question").innerText
-        );
         while (
-            originalQuestionNum ==
+            window.LastCompletedQuestionNumber ==
             parseInt(document.querySelector(".current-question").innerText)
         ) {
             await sleep(500);
         }
+        console.debug("Question changed:", window.LastCompletedQuestionNumber, parseInt(document.querySelector(".current-question").innerText));
+        window.LastCompletedQuestionNumber = parseInt(document.querySelector(".current-question").innerText);
         resolve();
     });
 }
 
 async function mainLoop() {
+    await waitForQuizizzQuiz();
+    window.LastCompletedQuestionNumber = 0;
     while (true) {
         if (!isQuizizzQuiz()) {
             // Game over.
@@ -185,8 +186,8 @@ async function mainLoop() {
         );
         if (questionNum) {
             await waitForElement([".options-container", ".typed-option-input"]);
-            let currentSet = Context.GetSetData();
-            let currentQuestion = getCurrentQuestion(currentSet);
+            let currentSet = await Context.GetSetData();
+            let currentQuestion = GetCurrentQuestion(currentSet);
             if (currentQuestion === null) {
                 // TODO: Error reporting.
                 throw Error("Current question not found in current set.");
@@ -207,4 +208,5 @@ async function mainLoop() {
             }
         }
     }
+    mainLoop(); // Start waiting again in case another quiz is started.
 }
