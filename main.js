@@ -13,7 +13,6 @@ const ValidPowerups = [
 ];
 // Source: https://quizizz.zendesk.com/hc/en-us/articles/360035742972-How-many-Power-ups-are-there-
 
-
 function injectLibs() {
     // Inject required libraries
     console.debug("Injecting required libraries...");
@@ -111,6 +110,7 @@ function GetCurrentAnswerType() {
 }
 
 function GetCurrentQuestion(set) {
+    // TODO: Use Context's lastVisibleQuestionId instead of this brute-force checking method
     let currentQuestionType = GetCurrentQuestionType();
     let mediaSRC, text;
     if (currentQuestionType == "media" || currentQuestionType == "both") {
@@ -119,10 +119,15 @@ function GetCurrentQuestion(set) {
             .split("?")[0]; //! May need to use "/?" instead of "?"
     }
     if (currentQuestionType == "text" || currentQuestionType == "both") {
-        text = document.querySelector(".quiz-container .question-text p")
+        text = document.querySelector(".quiz-container .question-text p") // TODO: use > div > div.innerHTML instead of p.outerhtml
             .outerHTML;
     }
-    console.debug("Current question identifier:", currentQuestionType, text, mediaSRC);
+    console.debug(
+        "Current question identifier:",
+        currentQuestionType,
+        text,
+        mediaSRC
+    );
     for (let question of Object.values(set.questions)) {
         // Loop through list of questions to match it with the current question
         if (
@@ -161,8 +166,14 @@ function waitForQuestionChange() {
         ) {
             await sleep(500);
         }
-        console.debug("Question changed:", window.LastCompletedQuestionNumber, parseInt(document.querySelector(".current-question").innerText));
-        window.LastCompletedQuestionNumber = parseInt(document.querySelector(".current-question").innerText);
+        console.debug(
+            "Question changed:",
+            window.LastCompletedQuestionNumber,
+            parseInt(document.querySelector(".current-question").innerText)
+        );
+        window.LastCompletedQuestionNumber = parseInt(
+            document.querySelector(".current-question").innerText
+        );
         resolve();
     });
 }

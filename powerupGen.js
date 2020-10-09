@@ -2,7 +2,7 @@ class PowerupGen {
     static async createCreatePowerupButton() {
         // Define the function the button should call when it is clicked.
         window.createPowerup = async function () {
-            let { GameType, roomHash, playerId } = Context.GetGameMeta();
+            let { gameType, roomHash, playerId } = Context.GetGameMeta();
             let chosenPowerup = await new Promise((resolve) => {
                 alertify.prompt(
                     "Choose Powerup",
@@ -52,7 +52,7 @@ class PowerupGen {
             );
             xhr.send(
                 JSON.stringify({
-                    gameType: GameType,
+                    gameType: gameType,
                     roomHash: roomHash,
                     playerId: playerId,
                     powerup: {
@@ -148,15 +148,15 @@ class PowerupGen {
     `
         );
     }
-    
+
     static cleanup() {
         // The quiz has ended.
         // We need to collect and clean up the elements we've injected.
         console.log("Quizizz quiz ended.");
         for (let id of [
             // Remove every element with the ids in the list
-            "wrapper-x3Ca8B",   // Create Powerup Button
-            "powerups-x3Ca8B"   // Create Powerup Stylesheet
+            "wrapper-x3Ca8B", // Create Powerup Button
+            "powerups-x3Ca8B" // Create Powerup Stylesheet
         ]) {
             if (document.getElementById(id)) {
                 document.getElementById(id).remove();
