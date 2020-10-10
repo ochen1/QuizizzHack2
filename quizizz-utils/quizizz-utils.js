@@ -27,3 +27,30 @@ function waitForQuizizzQuiz() {
         }
     });
 }
+
+function waitForQuestionChange() {
+    return new Promise(async (resolve) => {
+        try {
+            while (
+                window.LastCompletedQuestionNumber ==
+                parseInt(document.querySelector(".current-question").innerText)
+            ) {
+                await sleep(500);
+            }
+            console.debug(
+                "Question changed:",
+                window.LastCompletedQuestionNumber,
+                parseInt(document.querySelector(".current-question").innerText)
+            );
+            window.LastCompletedQuestionNumber = parseInt(
+                document.querySelector(".current-question").innerText
+            );
+        } catch (err) {
+            if (!err instanceof TypeError) {
+                throw err;
+            }
+        } finally {
+            resolve();
+        }
+    });
+}
