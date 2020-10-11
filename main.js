@@ -1,6 +1,7 @@
 // Constants
 const ErrorReportingURL = "";
 const MetricsURL = null;
+/*
 const ValidPowerups = [
     "2x",
     "50-50",
@@ -12,6 +13,13 @@ const ValidPowerups = [
     "glitch"
 ];
 // Source: https://quizizz.zendesk.com/hc/en-us/articles/360035742972-How-many-Power-ups-are-there-
+*/
+
+fetch("https://cf.quizizz.com/game/data/PowerupsConfig/v10.json")
+    .then((res) => res.json())
+    .then((res) => {
+        window.ValidPowerups = Object.keys(res);
+    });
 
 function injectLibs() {
     // Inject required libraries
@@ -164,17 +172,23 @@ async function mainLoop() {
         await waitForQuestionChange();
         let isRedemptionQuestion = !!document.querySelector(
             ".redemption-marker"
-            );
-            if (isRedemptionQuestion) {
-                if (document.querySelector("screen-redemption-question-selector[data-screen='redemption-question-selector']")) {
-                    // Question not present on page, still waiting for question selection
-                    await waitForElement([".transitioner .quiz-container.question-redemption-theme[currentpage='inGame|quiz']"]);
-                }
+        );
+        if (isRedemptionQuestion) {
+            if (
+                document.querySelector(
+                    "screen-redemption-question-selector[data-screen='redemption-question-selector']"
+                )
+            ) {
+                // Question not present on page, still waiting for question selection
+                await waitForElement([
+                    ".transitioner .quiz-container.question-redemption-theme[currentpage='inGame|quiz']"
+                ]);
             }
-            let questionNum = document.querySelector(".current-question")
-                ? parseInt(document.querySelector(".current-question").innerText)
-                : false; // The current question was not found
-            if (questionNum) {
+        }
+        let questionNum = document.querySelector(".current-question")
+            ? parseInt(document.querySelector(".current-question").innerText)
+            : false; // The current question was not found
+        if (questionNum) {
             await waitForElement([".options-container", ".typed-option-input"]);
             let currentSet = await Context.GetSetData();
             let currentQuestion = GetCurrentQuestion(currentSet);

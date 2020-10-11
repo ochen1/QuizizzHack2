@@ -1,5 +1,5 @@
 class QuizizzPowerupApi {
-    static createPowerup({gameType, roomHash, playerId, chosenPowerup}) {
+    static createPowerup({ gameType, roomHash, playerId, chosenPowerup }) {
         return new Promise((resolve) => {
             let xhr = new XMLHttpRequest();
             xhr.open("POST", "https://game.quizizz.com/play-api/awardPowerup");
@@ -213,6 +213,7 @@ class PowerupGen {
 `
         );
 
+        // TODO: Ensure button is always at the end of list
         document
             .querySelector(
                 ".control-center-container > .tool-bar > .powerup-wrapper"
