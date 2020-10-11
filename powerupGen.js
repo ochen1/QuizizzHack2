@@ -1,3 +1,34 @@
+class QuizizzPowerupsApi {
+    static createPowerup({gameType, roomHash, playerId, chosenPowerup}) {
+        return new Promise((resolve) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://game.quizizz.com/play-api/awardPowerup");
+            xhr.setRequestHeader(
+                "Content-Type",
+                "application/json;charset=UTF-8"
+            );
+            xhr.send(
+                JSON.stringify({
+                    gameType: gameType,
+                    roomHash: roomHash,
+                    playerId: playerId,
+                    powerup: {
+                        name: chosenPowerup
+                    }
+                })
+            );
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    resolve({
+                        statusCode: xhr.status,
+                        response: JSON.parse(xhr.responseText)
+                    });
+                }
+            };
+        });
+    }
+}
+
 class PowerupGen {
     static async createCreatePowerupButton() {
         // TODO: Create settings panel
@@ -46,53 +77,37 @@ class PowerupGen {
                     return false;
                 }
             }
-            let xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://game.quizizz.com/play-api/awardPowerup");
-            xhr.setRequestHeader(
-                "Content-Type",
-                "application/json;charset=UTF-8"
-            );
-            xhr.send(
-                JSON.stringify({
-                    gameType: gameType,
-                    roomHash: roomHash,
-                    playerId: playerId,
-                    powerup: {
-                        name: chosenPowerup
-                    }
-                })
-            );
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    let ret = JSON.parse(xhr.responseText);
-                    if (xhr.status != 200 || ret.error) {
-                        // The attempt to add the powerup failed for some reason.
-                        // TODO: Automatically report this error.
-                        if (ret.error) {
-                            alertify.notify(
-                                ret.error + " (" + ret.type + ")",
-                                "error",
-                                10
-                            );
-                        } else {
-                            alertify.notify(
-                                "An unknown error occurred.",
-                                "error",
-                                5
-                            );
-                        }
-                        return false;
-                    }
+            let {
+                statusCode,
+                response
+            } = await QuizizzPowerupsApi.createPowerup({
+                gameType: gameType,
+                roomHash: roomHash,
+                playerId: playerId,
+                chosenPowerup: chosenPowerup
+            });
+            if (statusCode != 200 || response.error) {
+                // The attempt to add the powerup failed for some reason.
+                // TODO: Automatically report this error.
+                if (response.error) {
                     alertify.notify(
-                        "SUCCESS: " +
-                            ret.powerup.status +
-                            " " +
-                            ret.powerup.name.toUpperCase(),
-                        "success",
-                        3
+                        response.error + " (" + response.type + ")",
+                        "error",
+                        10
                     );
+                } else {
+                    alertify.notify("An unknown error occurred.", "error", 5);
                 }
-            };
+                return false;
+            }
+            alertify.notify(
+                "SUCCESS: " +
+                    response.powerup.status +
+                    " " +
+                    response.powerup.name.toUpperCase(),
+                "success",
+                3
+            );
         };
         /*
         document.head.insertAdjacentHTML(
@@ -153,8 +168,8 @@ class PowerupGen {
 
         // Rainbow animation from: https://codepen.io/nohoid/pen/kIfto
         document.head.insertAdjacentHTML(
-        "beforeend",
-        `
+            "beforeend",
+            `
 <style id="powerups-x3Ca8B" type="text/css">
 #btn-rainbow-x3Ca8B {
     background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
@@ -191,18 +206,23 @@ class PowerupGen {
 }
 </style>
 `
-    );
+        );
 
-        document.querySelector(".control-center-container > .tool-bar > .powerup-wrapper").insertAdjacentHTML(
-            "beforeend",
-            `
+        document
+            .querySelector(
+                ".control-center-container > .tool-bar > .powerup-wrapper"
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                `
 <div data-v-5bf8f3b0="" id="wrapper-x3Ca8B" class="powerup-container" style="opacity: 1;" onclick="window.createPowerup();">
     <div data-v-5bf8f3b0="" id="btn-rainbow-x3Ca8B" class="powerup-icon control-center-btn">
         <img data-v-5bf8f3b0="" src="https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/solid/plus-circle.svg?raw=true" class="powerup-icon-image">
     </div>
     <span data-v-5bf8f3b0="" class="btn-title">Add New</span>
 </div>
-`);
+`
+            );
     }
 
     static cleanup() {
