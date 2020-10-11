@@ -182,7 +182,7 @@ class PowerupGen {
 }
 #btn-rainbow-x3Ca8B img {
     height: 90%;
-    filter: contrast(60%);
+    filter: opacity(75%);
 }
 
 @-webkit-keyframes rainbow {
