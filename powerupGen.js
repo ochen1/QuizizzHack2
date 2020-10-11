@@ -183,6 +183,10 @@ class PowerupGen {
 #btn-rainbow-x3Ca8B img {
     height: 90%;
     filter: opacity(75%);
+    transition: filter 100ms ease-in;
+}
+#btn-rainbow-x3Ca8B:hover img {
+    filter: opacity(90%);
 }
 
 @-webkit-keyframes rainbow {
