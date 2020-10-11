@@ -181,6 +181,7 @@ class PowerupGen {
     transition: background 250ms ease-in;
 }
 #btn-rainbow-x3Ca8B img {
+    height: 90%;
     filter: contrast(60%);
 }
 
@@ -215,7 +216,7 @@ class PowerupGen {
             .insertAdjacentHTML(
                 "beforeend",
                 `
-<div data-v-5bf8f3b0="" id="wrapper-x3Ca8B" class="powerup-container" style="opacity: 1;" onclick="window.createPowerup();">
+<div data-v-5bf8f3b0="" id="wrapper-x3Ca8B" class="powerup-container" onclick="window.createPowerup();">
     <div data-v-5bf8f3b0="" id="btn-rainbow-x3Ca8B" class="powerup-icon control-center-btn">
         <img data-v-5bf8f3b0="" src="https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/solid/plus-circle.svg?raw=true" class="powerup-icon-image">
     </div>
