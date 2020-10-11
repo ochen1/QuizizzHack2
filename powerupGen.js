@@ -1,4 +1,4 @@
-class QuizizzPowerupsApi {
+class QuizizzPowerupApi {
     static createPowerup({gameType, roomHash, playerId, chosenPowerup}) {
         return new Promise((resolve) => {
             let xhr = new XMLHttpRequest();
@@ -80,7 +80,7 @@ class PowerupGen {
             let {
                 statusCode,
                 response
-            } = await QuizizzPowerupsApi.createPowerup({
+            } = await QuizizzPowerupApi.createPowerup({
                 gameType: gameType,
                 roomHash: roomHash,
                 playerId: playerId,
