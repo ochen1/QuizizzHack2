@@ -174,8 +174,6 @@ class Context {
                 xhr.status === 200
             ) {
                 resolve();
-            } else {
-                console.log(xhr);
             }
             xhr.onreadystatechange = () => {
                 if (
@@ -183,8 +181,6 @@ class Context {
                     xhr.status === 200
                 ) {
                     resolve();
-                } else {
-                    console.log(xhr);
                 }
             };
         });
