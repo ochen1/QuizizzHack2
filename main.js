@@ -63,10 +63,8 @@ function GetAnswer(question) {
             let answers = JSON.parse(
                 Encoding.decode(question.structure.answer)
             );
-            answer = answers.map((answer) => {
-                return answer.text == ""
-                    ? question.structure.options[answer].media[0].url
-                    : question.structure.options[answer].text;
+            answer = answers.map((choice) => {
+                return choice.text == "" ? choice.media[0].url : choice.text;
             });
             break;
         case "MCQ":
@@ -78,7 +76,7 @@ function GetAnswer(question) {
                     : question.structure.options[answerId].text;
     }
     console.debug(
-        `Found answer of question of type ${question.structure.kind}: `,
+        `Found answer of question with answer type ${question.structure.kind}:`,
         answer
     );
     return answer;
@@ -187,7 +185,11 @@ async function mainLoop() {
         let isRedemptionQuestion = !!document.querySelector(
             ".redemption-marker"
         );
-        console.debug(`This question is${isRedemptionQuestion ? "" : " not"} a redemption question.`);
+        console.debug(
+            `This question is${
+                isRedemptionQuestion ? "" : " not"
+            } a redemption question.`
+        );
         if (isRedemptionQuestion) {
             if (
                 document.querySelector(
@@ -195,7 +197,9 @@ async function mainLoop() {
                 )
             ) {
                 // Question not present on page, still waiting for question selection
-                console.debug("Redemption question selector found. Waiting for main quiz container...");
+                console.debug(
+                    "Redemption question selector found. Waiting for main quiz container..."
+                );
                 await waitForElement([
                     ".transitioner .quiz-container.question-redemption-theme[currentpage='inGame|quiz']"
                 ]);
