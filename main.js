@@ -178,6 +178,7 @@ function GetCurrentQuestion(set) {
 
 async function mainLoop() {
     window.LastCompletedQuestionNumber = 0;
+    window.SetCache = new SetCache();
     while (isQuizizzQuiz()) {
         console.debug("Waiting for question change...");
         await waitForQuestionChange();
@@ -214,7 +215,7 @@ async function mainLoop() {
             console.debug("Waiting for input form (any type)...");
             await waitForElement([".options-container", ".typed-option-input"]);
             console.debug("Input form found.");
-            let currentSet = await Context.GetSetData();
+            let currentSet = await window.SetCache.cache;
             console.debug("Got current set data:", currentSet);
             let currentQuestion = GetCurrentQuestion(currentSet);
             if (currentQuestion === null) {
