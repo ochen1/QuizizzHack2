@@ -64,7 +64,9 @@ function GetAnswer(question) {
                 Encoding.decode(question.structure.answer)
             );
             answer = answers.map((choice) => {
-                return choice.text == "" ? choice.media[0].url : choice.text;
+                return question.structure.options[choice].text == ""
+                    ? question.structure.options[choice].media[0].url
+                    : question.structure.options[choice].text;
             });
             break;
         case "MCQ":
@@ -238,6 +240,7 @@ async function mainLoop() {
             }
         } else {
             // TODO: Auto error reporting
+            // TODO: If question number not found, it most likely means the quiz is over. break here.
             console.error("Question number not found?");
         }
     }
