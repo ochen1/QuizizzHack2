@@ -1,4 +1,5 @@
 class QuizizzPowerupApi {
+    // TODO: Delete powerups like: https://codepen.io/shaunrfox/pen/zxxVqg
     static createPowerup({ gameType, roomHash, playerId, chosenPowerup }) {
         return new Promise((resolve) => {
             let xhr = new XMLHttpRequest();

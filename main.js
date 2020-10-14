@@ -49,34 +49,43 @@ function injectLibs() {
 }
 
 function GetAnswer(question) {
+    console.debug("Getting answer of question:", question);
+    let answer;
     switch (question.structure.kind) {
         case "BLANK":
             // Text Response
-            return question.structure.options.map((answer) => {
+            answer = question.structure.options.map((answer) => {
                 return answer.text;
             });
+            break;
         case "MSQ":
             // Multiple Choice
             let answers = JSON.parse(
                 Encoding.decode(question.structure.answer)
             );
-            return answers.map((answer) => {
+            answer = answers.map((answer) => {
                 return answer.text == ""
                     ? question.structure.options[answer].media[0].url
                     : question.structure.options[answer].text;
             });
+            break;
         case "MCQ":
             // Single Choice
-            let answerId = Encoding.decode(question.structure.answer),
-                answer =
-                    question.structure.options[answerId].text == ""
-                        ? question.structure.options[answerId].media[0].url
-                        : question.structure.options[answerId].text;
-            return answer;
+            let answerId = Encoding.decode(question.structure.answer);
+            answer =
+                question.structure.options[answerId].text == ""
+                    ? question.structure.options[answerId].media[0].url
+                    : question.structure.options[answerId].text;
     }
+    console.debug(
+        `Found answer of question of type ${question.structure.kind}: `,
+        answer
+    );
+    return answer;
 }
 
 function GetCurrentQuestionType() {
+    // TODO: Wait for element before timing out to unknown type
     // Gets the method of identification for the current question
     if (document.querySelector(".quiz-container .question-media")) {
         // Media detected, check if text is also present
@@ -98,6 +107,7 @@ function GetCurrentQuestionType() {
 }
 
 function GetCurrentAnswerType() {
+    // TODO: Wait for element before timing out to unknown type
     // Gets the response type of the current question
     if (document.querySelector(".quiz-container .typed-option-input")) {
         // Text box detected
@@ -118,6 +128,7 @@ function GetCurrentAnswerType() {
 }
 
 function GetCurrentQuestion(set) {
+    console.debug("Finding current question in set:", set);
     // TODO: Use Context's lastVisibleQuestionId instead of this brute-force checking method
     let currentQuestionType = GetCurrentQuestionType();
     let mediaSRC, text;
@@ -163,16 +174,20 @@ function GetCurrentQuestion(set) {
             }
         }
     }
+    console.error("Failed to get current question.");
     return null;
 }
 
 async function mainLoop() {
     window.LastCompletedQuestionNumber = 0;
     while (isQuizizzQuiz()) {
+        console.debug("Waiting for question change...");
         await waitForQuestionChange();
+        console.debug("Question changed.");
         let isRedemptionQuestion = !!document.querySelector(
             ".redemption-marker"
         );
+        console.debug(`This question is${isRedemptionQuestion ? "" : " not"} a redemption question.`);
         if (isRedemptionQuestion) {
             if (
                 document.querySelector(
@@ -180,17 +195,23 @@ async function mainLoop() {
                 )
             ) {
                 // Question not present on page, still waiting for question selection
+                console.debug("Redemption question selector found. Waiting for main quiz container...");
                 await waitForElement([
                     ".transitioner .quiz-container.question-redemption-theme[currentpage='inGame|quiz']"
                 ]);
+                console.debug("Main quiz container found.");
             }
         }
         let questionNum = document.querySelector(".current-question")
             ? parseInt(document.querySelector(".current-question").innerText)
             : false; // The current question was not found
+        console.debug("Got question number:", questionNum);
         if (questionNum) {
+            console.debug("Waiting for input form (any type)...");
             await waitForElement([".options-container", ".typed-option-input"]);
+            console.debug("Input form found.");
             let currentSet = await Context.GetSetData();
+            console.debug("Got current set data:", currentSet);
             let currentQuestion = GetCurrentQuestion(currentSet);
             if (currentQuestion === null) {
                 // TODO: Error reporting.
@@ -199,21 +220,24 @@ async function mainLoop() {
             let answer = GetAnswer(currentQuestion);
             switch (GetCurrentAnswerType()) {
                 case "BLANK":
-                    console.log("Manual Input", answer);
+                    console.info("Manual Input", answer);
                     break;
                 case "MSQ":
                     // Multiple Choice
-                    console.log("Multiple Choice", answer);
+                    console.info("Multiple Choice", answer);
                     break;
                 case "MCQ":
                     // Single Choice
-                    console.log("Single Choice", answer);
+                    console.info("Single Choice", answer);
                     break;
             }
         } else {
             // TODO: Auto error reporting
+            console.error("Question number not found?");
         }
     }
+    console.warn("Main loop ended.");
     PowerupGen.cleanup();
+    console.debug("Cleanup complete. Starting new loop.");
     mainLoop(); // Start waiting again in case another quiz is started.
 }
