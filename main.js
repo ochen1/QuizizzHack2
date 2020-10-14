@@ -239,12 +239,13 @@ async function mainLoop() {
                     break;
             }
         } else {
+            // ! Weird, isQuizizzQuiz() is messing up something
             // TODO: Auto error reporting
-            // TODO: If question number not found, it most likely means the quiz is over. break here.
-            console.error("Question number not found?");
+            console.error("Question number not found? Assuming the game is over...");
+            break;  // For now, break out of the main loop to prevent crash & infinite loop.
         }
     }
-    console.warn("Main loop ended.");
+    console.warn("Main loop exited; quiz ended.");
     PowerupGen.cleanup();
     console.debug("Cleanup complete. Starting new loop.");
     mainLoop(); // Start waiting again in case another quiz is started.
